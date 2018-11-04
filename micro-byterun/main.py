@@ -13,11 +13,11 @@ class VirtualMachine(object):
         self.frames = []  # 调用栈
         self.frame = None  # 当前帧
         self.return_value = None  # 在帧之间传递的返回值
-        self.last_exception = None  # 异常状态
+        self.last_exception = None  # 上一个异常
 
     def run_code(self, code, global_names=None, local_names=None):
         """
-        这里是使用VirtualMachine实现代码的入口
+        这里是使用VirtualMachine执行代码的入口
         以编译后的代码对象为参数，创建一个帧，并开始运行
         参数中的全局命名空间和局部命名空间默认值均为None
         """
@@ -66,7 +66,7 @@ class VirtualMachine(object):
     def run_frame(self, frame):
         """
         运行给定的帧直到帧返回值
-        Exceptions are raised, the return value is returned.
+        能够唤起异常，将返回值返回
         """
         self.push_frame(frame)  # 将帧压入调用栈顶部
         while True:  # 以指令组为单位循环处理代码对象中的指令
@@ -84,7 +84,7 @@ class VirtualMachine(object):
         self.pop_frame()  # 弹出帧，重置当前帧
 
         if why == 'exception':  # 如果指令处理过程中捕获到了异常，解析异常信息
-            exc, val, tb = self.last_exception  # last_exception -> (type, value, None)
+            exc, val, tb = self.last_exception  # last_exception解析为(type, value, None)
             e = exc(val)  # 解析异常类型
             e.__traceback__ = tb  # 构建异常回溯信息
             raise e  # raise异常类型
@@ -93,18 +93,18 @@ class VirtualMachine(object):
 
     # 数据栈的操作
     def top(self):
-        return self.frame.stack[-1]  # 返回数据栈顶部的值
+        return self.frame.stack[-1]  # 返回数据栈顶部的对象
 
     def pop(self):
-        return self.frame.stack.pop()  # 弹出数据栈顶部的值
+        return self.frame.stack.pop()  # 弹出数据栈顶部的对象
 
     def push(self, *vals):
-        self.frame.stack.extend(vals)   # 将给定值压入数据栈顶部
+        self.frame.stack.extend(vals)   # 将给定对象压入数据栈顶部
 
     def popn(self, n):
-        """从数据栈顶部弹出多个值，返回一个n个值的列表，在数据栈中最底层的值在列表最前面"""
+        """从数据栈顶部弹出多个对象，返回一个n个对象的列表，在数据栈中最底层的对象在列表最前面"""
         if n:
-            ret = self.frame.stack[-n:]  # 弹出数据栈中[-n,]的值
+            ret = self.frame.stack[-n:]  # 弹出数据栈中后n个对象
             self.frame.stack[-n:] = []
             return ret
         else:
@@ -181,16 +181,16 @@ class VirtualMachine(object):
         """Unwind the values on the data stack corresponding to a given block."""
         if block.type == 'except_handler':  # 判断块的类型是否为异常处理器
             # 异常以（type, value, and traceback）组成的元组形式存在于数据栈中
-            offset = 3  #
+            offset = 3
         else:
             offset = 0
 
-        # 当数据栈长度大于块栈的长度，弹出数据栈顶端的值，直到长度相等为止
+        # 当数据栈对象数量大于块栈的块的数量，弹出数据栈顶端的对象，直到数量相等(根据是否唤起异常比较条件不同）为止
         while len(self.frame.stack) > block.level + offset:
             self.pop()
 
         if block.type == 'except-handler':  # 判断块的类型是否为异常处理器
-            traceback, value, exctype = self.popn(3)  # 从数据栈顶部弹出3个值，分别对应异常的回溯记录、值、类型
+            traceback, value, exctype = self.popn(3)  # 从数据栈顶部弹出3个对象，分别对应异常的回溯记录、值、类型
             self.last_exception = exctype, value, traceback
 
     def manage_block_stack(self, why):
@@ -237,7 +237,7 @@ class VirtualMachine(object):
     def byte_LOAD_CONST(self, const):  # 压入常量到数据栈顶部
         self.push(const)
 
-    def byte_POP_TOP(self):  # 取出数据栈顶部的值
+    def byte_POP_TOP(self):  # 取出数据栈顶部的对象
         self.pop()
 
     # 变量
@@ -254,7 +254,7 @@ class VirtualMachine(object):
             raise NameError(f"name {name} is not defined")
         self.push(val)  # 将变量对象压入数据栈
 
-    def byte_STORE_NAME(self, name):  # 接受参数作为名称，弹出数据栈顶部的值并存入局部命名空间（赋值给变量）
+    def byte_STORE_NAME(self, name):  # 接受参数作为名称，弹出数据栈顶部的对象并存入局部命名空间（赋值给变量）
         self.frame.local_names[name] = self.pop()
 
     def bytes_LOAD_FAST(self, name):  # 压入局部变量到数据栈顶部
@@ -348,7 +348,7 @@ class VirtualMachine(object):
     def byte_BULD_MAP(self, size):  # 构建空字典，忽略size参数
         self.push({})
 
-    def byte_STORE_MAP(self):  # 指定3个值构建字典
+    def byte_STORE_MAP(self):  # 指定3个对象构建字典
         the_map, val, key = self.popn(3)
         the_map[key] = val
         self.push(the_map)
