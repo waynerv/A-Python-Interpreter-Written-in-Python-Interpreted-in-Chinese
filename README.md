@@ -8,9 +8,9 @@
 ### 注意
 - 绝大部分代码实现了中文注释，方便中文初学者理解代码的具体实现
 - 本项目是作者[Allison Kaptur](akaptur.com)参与的Byterun项目的微缩版本，部分代码在简化过程中有遗漏或错误，我对发现的错误进行了修正（同时修正了中文翻译版的部分代码笔误）
-- 由于本人初学Python且英语能力不佳，部分代码注释可能有误或用词不规范、不准确，希望你可以理解，并欢迎通过pull request或Issues参与改正
-- 原文基于Python3.5及更早版本实现，由于Python3.6版本对字节码进行了小改动，本项目代码无法在Python3.6或3.7中完整实现，但不影响学习其实现原理，有兴趣者可自己尝试自修改代码适配新版本
+- 原文基于Python3.5及更早版本实现，由于Python3.6版本对字节码进行了小改动，本项目代码无法在Python3.6或3.7中完整实现，但不影响学习其实现原理，有兴趣者可自己尝试修改代码适配新版本
 - 代码中使用了dis, sys, collections, operator, types, inspect等Python内置库，但原文中未提及
+- 由于本人初学Python且英语能力不佳，部分代码注释可能有误或用词不规范、不准确，希望你可以理解，并欢迎通过pull request或Issues参与改正
 ### 地址
 - 原文地址:[http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html](http://aosabook.org/en/500L/a-python-interpreter-written-in-python.html) 作者：Allison Kaptur
 - Byterun项目地址:[https://github.com/nedbat/byterun](https://github.com/nedbat/byterun)
